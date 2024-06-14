@@ -112,6 +112,7 @@ class _PomodoroTimerState extends State<PomodoroTimer> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      
       onTap: () {
         toggleTimer();
       },
