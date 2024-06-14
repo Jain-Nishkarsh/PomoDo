@@ -26,7 +26,10 @@ SECRET_KEY = 'django-insecure-y2f0*aypnjpv6+@t7tq1(fm7@(z^74_rq#495hoo=3bxa7x&ma
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'f450-2405-201-5c05-f157-948b-83bd-2810-8bc7.ngrok-free.app',
+    'localhost',
+]
 
 
 # Application definition
@@ -126,3 +129,9 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}

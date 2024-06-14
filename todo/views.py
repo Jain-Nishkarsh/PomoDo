@@ -1,19 +1,41 @@
 from django.shortcuts import render
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
+from rest_framework.decorators import action
+from django.contrib.auth import authenticate
+from rest_framework.exceptions import status
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.core.exceptions import ObjectDoesNotExist
 from .serializers import *
 from .models import *
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import renderers
 from rest_framework.response import Response
 from django.contrib.auth.models import User as AuthUser
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
+
+class AuthViewSet(GenericViewSet):
+    queryset = AuthUser.objects.all()
+
+    @action(detail=False, methods=["post"])
+    def login(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            })
+        else:
+            return Response({"error": "Invalid username or password"}, status=status.HTTP_400_BAD_REQUEST)
 
 # Create your views here.
 class UserViewSet(ModelViewSet):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
     lookup_field = 'static_id'
     queryset = User.objects.all()
-    # renderer_classes = (renderers.JSONRenderer, renderers.TemplateHTMLRenderer)
 
     def create(self, request):
         data = request.data
@@ -62,11 +84,10 @@ class UserViewSet(ModelViewSet):
             )
         
 class ListViewSet(ModelViewSet):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = ListSerializer
     lookup_field = 'static_id'
     queryset = List.objects.all()
-    # renderer_classes = (renderers.JSONRenderer, renderers.TemplateHTMLRenderer)
 
     def create(self, request):
         data = request.data
@@ -97,31 +118,20 @@ class TaskViewSet(ModelViewSet):
     serializer_class = TaskSerializer
     lookup_field = 'static_id'
     queryset = Task.objects.all()
-    # renderer_classes = (renderers.JSONRenderer, renderers.TemplateHTMLRenderer)
 
     def create(self, request):
         data = request.data
         try:
-            print(request.user)
-            user = User.objects.get(auth_user__id=request.user.id)
+            # user = User.objects.get(auth_user=request.user)
+            user = User.objects.get(auth_user=AuthUser.objects.get(username='nishkarsh'))
             if 'list' not in data:
                 data['list'] = user.lists.first().static_id
 
-            list = List.objects.get(static_id=data['list'])
-            print(list.owner.auth_user, request.user)
-            # if (list.owner.auth_user != request.user):
-            #     return Response(
-            #         data={
-            #             "message": "You are not authorized to create tasks for this list"
-            #         },
-            #         status=401,
-            #     )
-            
-            # Task.objects.get_or_create(
-            #     list=list,
-            #     title=data['title'],
-            #     due_date=data['due_date'],
-            # )
+            Task.objects.create(
+                list=List.objects.get(static_id=data['list']),
+                title=data['title'],
+                due_date=data['due_date'],
+            )
 
             return Response(
                 data={
@@ -137,3 +147,22 @@ class TaskViewSet(ModelViewSet):
                 },
                 status=400,
             )
+
+    def partial_update(self, request, *args, **kwargs):
+        try:
+            task = Task.objects.get(static_id=kwargs['static_id'])
+        except ObjectDoesNotExist:
+            return Response({"error": "Task not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = TaskSerializer(task, data=request.data, partial=True) # set partial=True to update a data partially
+
+        if serializer.is_valid():
+            serializer.save()
+            if serializer.validated_data.get('completed', None):
+                task.completed_at = datetime.datetime.now()
+            else:
+                task.completed_at = None
+            task.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

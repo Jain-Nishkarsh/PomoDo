@@ -16,8 +16,20 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.urls.conf import include
+from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework.routers import DefaultRouter
+from todo.views import AuthViewSet
+
+router = DefaultRouter()
+router.register(r'auth', AuthViewSet, basename='auth')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('todo.urls'))
+    path('auth/', include('django.contrib.auth.urls')),
+    path('api/', include('todo.urls')),
+    path('api/', include(router.urls)),
+]
+
+urlpatterns += [
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

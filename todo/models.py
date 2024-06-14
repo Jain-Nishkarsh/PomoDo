@@ -1,3 +1,4 @@
+import datetime
 from django.db import models
 from django.contrib.auth import get_user_model
 import uuid
@@ -33,4 +34,4 @@ class Task(models.Model):
     completed_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.list.name} - {self.name}"
+        return f"{self.list.name} - {self.title}"
