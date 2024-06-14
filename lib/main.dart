@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/appbar.dart';
 import 'package:myapp/bottomcard.dart';
 import 'package:myapp/colors.dart';
 import 'package:myapp/pomodoro_screen.dart';
@@ -16,10 +17,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       home: HomeScreen(),
-      // routes: {
-      //   '/tasks': (context) => const TasksScreen(),
-      //   '/profile': (context) => const ProfileScreen(),
-      // },
     );
   }
 }
@@ -55,9 +52,12 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: bgColor,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: bgColor,
+        title: CustomAppBar(screenindex: _currentIndex,)
+      ),
       body: IndexedStack(
-        // index: _currentIndex,
-        // children: _screens,
         children: [
           PageView(
             controller: _pageController,
