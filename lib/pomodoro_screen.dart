@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:myapp/bottomcard.dart';
+// import 'package:myapp/bottomcard.dart';
 import 'package:myapp/colors.dart';
 import 'package:myapp/timer.dart';
 
@@ -59,7 +59,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: const BottomCardNavigationBar(),
+      // bottomNavigationBar: const BottomCardNavigationBar(),
     );
   }
 }

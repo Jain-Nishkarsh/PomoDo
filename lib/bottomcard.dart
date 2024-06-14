@@ -3,7 +3,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:myapp/colors.dart';
 
 class BottomCardNavigationBar extends StatelessWidget {
-  const BottomCardNavigationBar({super.key});
+  final int currentIndex;
+  final Function(int) onTap;
+
+  const BottomCardNavigationBar({
+    required this.currentIndex,
+    required this.onTap,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +66,8 @@ class BottomCardNavigationBar extends StatelessWidget {
           ),
           // SizedBox(height: 10),
           BottomNavigationBar(
+            currentIndex: currentIndex,
+            onTap: onTap,
             backgroundColor: bgColor,
             selectedItemColor: selectedItemColor,
             unselectedItemColor: Colors.grey,
@@ -72,11 +81,11 @@ class BottomCardNavigationBar extends StatelessWidget {
                 label: 'Tasks',
               ),
             ],
-            onTap: (index) {
-              if (index == 1) {
-                Navigator.pushNamed(context, '/tasks');
-              }
-            },
+            // onTap: (index) {
+            //   if (index == 1) {
+            //     Navigator.pushNamed(context, '/tasks');
+            //   }
+            // },
           ),
         ],
       ),
