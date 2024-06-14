@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'colors.dart';
 
 void main() {
   runApp(const MyApp());
@@ -7,119 +11,218 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const PomodoroScreen(),
+      routes: {
+        '/tasks': (context) => const TasksScreen(),
+      },
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class PomodoroScreen extends StatefulWidget {
+  const PomodoroScreen({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _PomodoroScreenState createState() => _PomodoroScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _PomodoroScreenState extends State<PomodoroScreen> {
+  int _remainingSeconds = 1500;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  @override
+  void initState() {
+    super.initState();
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+       setState(() {
+         if (_remainingSeconds > 0) {
+           _remainingSeconds--;
+         } else {
+           timer.cancel(); // Stop the timer when it reaches zero
+         }
+       });
+     });
   }
+
+
+  String _formatTime(int seconds) {
+    int minutes = seconds ~/ 60;
+    int remainingSeconds = seconds % 60;
+    return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
+      backgroundColor: bgColor,
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(15),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                      child: Container(
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 30),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Pomodoro Stage",
+                          style: GoogleFonts.robotoSlab(
+                              fontSize: 20, color: white),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.account_circle),
+                          iconSize: 30,
+                          onPressed: () {
+
+                          },
+                        ),
+                      ],
+                    ),
+                  ))
+                ],
+              ),
+              CircleAvatar(
+                radius: 130,
+                backgroundColor: borderColor,
+                child: GestureDetector(
+                  onTap: () {
+                    // Handle circle tap
+                  },
+                  child: Text(
+                    _formatTime(_remainingSeconds),
+                    style: GoogleFonts.robotoSlab(
+                      fontSize: 60,
+                      letterSpacing: 4,
+                      color: bgColor,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      bottomNavigationBar: const BottomCardNavigationBar(),
+    );
+  }
+}
+
+class BottomCardNavigationBar extends StatelessWidget {
+  const BottomCardNavigationBar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width + 12,
+      decoration: const BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(50),
+          topRight: Radius.circular(50),
+        ),
+        // border: Border.all(color: Colors.white, width: 6),
+        border: Border(
+          top: BorderSide(color: borderColor, width: 4),
+          left: BorderSide(color: borderColor, width: 4),
+          right: BorderSide(color: borderColor, width: 4),
+          // right: BorderSide.none,
+          bottom: BorderSide.none,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black54,
+            offset: Offset(0, -2),
+            blurRadius: 6.0,
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GestureDetector(
+            onTap: () {
+              // Handle ongoing task tap
+            },
+            child: Container(
+              // width: double.infinity,
+              margin: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+              decoration: BoxDecoration(
+                color: accentColor,
+                borderRadius: BorderRadius.circular(40),
+                // border: Border.all(color: Colors.orange, width: 2),
+              ),
+              child: Center(
+                child: Text(
+                  'Ongoing Task',
+                  style: GoogleFonts.robotoSlab(
+                    color: Colors.white,
+                    fontSize: 20,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // SizedBox(height: 10),
+          BottomNavigationBar(
+            backgroundColor: bgColor,
+            selectedItemColor: selectedItemColor,
+            unselectedItemColor: Colors.grey,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.timer),
+                label: 'Pomodoro',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.list),
+                label: 'Tasks',
+              ),
+            ],
+            onTap: (index) {
+              if (index == 1) {
+                Navigator.pushNamed(context, '/tasks');
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class TasksScreen extends StatelessWidget {
+  const TasksScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        title: const Text("Tasks"),
+      ),
+      body: const Center(
+        child: Text(
+          'Tasks Screen',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
     );
   }
 }
