@@ -1,7 +1,6 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:myapp/timer.dart';
 import 'colors.dart';
 
 void main() {
@@ -30,30 +29,6 @@ class PomodoroScreen extends StatefulWidget {
 }
 
 class _PomodoroScreenState extends State<PomodoroScreen> {
-  int _remainingSeconds = 1500;
-
-  @override
-  void initState() {
-    super.initState();
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-       setState(() {
-         if (_remainingSeconds > 0) {
-           _remainingSeconds--;
-         } else {
-           timer.cancel(); // Stop the timer when it reaches zero
-         }
-       });
-     });
-  }
-
-
-  String _formatTime(int seconds) {
-    int minutes = seconds ~/ 60;
-    int remainingSeconds = seconds % 60;
-    return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
-  }
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,32 +62,14 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
                         IconButton(
                           icon: const Icon(Icons.account_circle),
                           iconSize: 30,
-                          onPressed: () {
-
-                          },
+                          onPressed: () {},
                         ),
                       ],
                     ),
                   ))
                 ],
               ),
-              CircleAvatar(
-                radius: 130,
-                backgroundColor: borderColor,
-                child: GestureDetector(
-                  onTap: () {
-                    // Handle circle tap
-                  },
-                  child: Text(
-                    _formatTime(_remainingSeconds),
-                    style: GoogleFonts.robotoSlab(
-                      fontSize: 60,
-                      letterSpacing: 4,
-                      color: bgColor,
-                    ),
-                  ),
-                ),
-              ),
+              const PomodoroTimer(initialTimeInSeconds: 300),
             ],
           ),
         ),
